@@ -25,13 +25,20 @@ PRINT_SKIPS = 'PRINT_SKIPS'
 PRINT_DOWNLOAD_PROGRESS = 'PRINT_DOWNLOAD_PROGRESS'
 PRINT_ERRORS = 'PRINT_ERRORS'
 PRINT_DOWNLOADS = 'PRINT_DOWNLOADS'
+PRINT_API_ERRORS = 'PRINT_API_ERRORS'
 TEMP_DOWNLOAD_DIR = 'TEMP_DOWNLOAD_DIR'
+MD_ALLGENRES = 'MD_ALLGENRES'
+MD_GENREDELIMITER = 'MD_GENREDELIMITER'
+PRINT_PROGRESS_INFO = 'PRINT_PROGRESS_INFO'
+PRINT_WARNINGS = 'PRINT_WARNINGS'
+RETRY_ATTEMPTS = 'RETRY_ATTEMPTS'
 
 CONFIG_VALUES = {
     ROOT_PATH:                  { 'default': '../ZSpotify Music/',    'type': str,  'arg': '--root-path'                  },
     ROOT_PODCAST_PATH:          { 'default': '../ZSpotify Podcasts/', 'type': str,  'arg': '--root-podcast-path'          },
     SKIP_EXISTING_FILES:        { 'default': 'True',                  'type': bool, 'arg': '--skip-existing-files'        },
     SKIP_PREVIOUSLY_DOWNLOADED: { 'default': 'False',                 'type': bool, 'arg': '--skip-previously-downloaded' },
+    RETRY_ATTEMPTS:             { 'default': '5',                     'type': int,  'arg': '--retry-attemps'              },
     DOWNLOAD_FORMAT:            { 'default': 'ogg',                   'type': str,  'arg': '--download-format'            },
     FORCE_PREMIUM:              { 'default': 'False',                 'type': bool, 'arg': '--force-premium'              },
     ANTI_BAN_WAIT_TIME:         { 'default': '1',                     'type': int,  'arg': '--anti-ban-wait-time'         },
@@ -44,12 +51,17 @@ CONFIG_VALUES = {
     SONG_ARCHIVE:               { 'default': '.song_archive',         'type': str,  'arg': '--song-archive'               },
     CREDENTIALS_LOCATION:       { 'default': 'credentials.json',      'type': str,  'arg': '--credentials-location'       },
     OUTPUT:                     { 'default': '',                      'type': str,  'arg': '--output'                     },
-    PRINT_SPLASH:               { 'default': 'True',                  'type': bool, 'arg': '--print-splash'               },
+    PRINT_SPLASH:               { 'default': 'False',                 'type': bool, 'arg': '--print-splash'               },
     PRINT_SKIPS:                { 'default': 'True',                  'type': bool, 'arg': '--print-skips'                },
     PRINT_DOWNLOAD_PROGRESS:    { 'default': 'True',                  'type': bool, 'arg': '--print-download-progress'    },
     PRINT_ERRORS:               { 'default': 'True',                  'type': bool, 'arg': '--print-errors'               },
     PRINT_DOWNLOADS:            { 'default': 'False',                 'type': bool, 'arg': '--print-downloads'            },
-    TEMP_DOWNLOAD_DIR:          { 'default': '',                      'type': str,  'arg': '--temp-download-dir'          },
+    PRINT_API_ERRORS:           { 'default': 'False',                 'type': bool, 'arg': '--print-api-errors'           },
+    PRINT_PROGRESS_INFO:        { 'default': 'True',                  'type': bool, 'arg': '--print-progress-info'        },
+    PRINT_WARNINGS:             { 'default': 'True',                  'type': bool, 'arg': '--print-warnings'             },
+    MD_ALLGENRES:               { 'default': 'False',                 'type': bool, 'arg': '--md-allgenres'               },
+    MD_GENREDELIMITER:          { 'default': ';',                     'type': str,  'arg': '--md-genredelimiter'          },
+    TEMP_DOWNLOAD_DIR:          { 'default': '',                      'type': str,  'arg': '--temp-download-dir'          }
 }
 
 OUTPUT_DEFAULT_PLAYLIST = '{playlist}/{artist} - {song_name}.{ext}'
@@ -57,6 +69,7 @@ OUTPUT_DEFAULT_PLAYLIST_EXT = '{playlist}/{playlist_num} - {artist} - {song_name
 OUTPUT_DEFAULT_LIKED_SONGS = 'Liked Songs/{artist} - {song_name}.{ext}'
 OUTPUT_DEFAULT_SINGLE = '{artist} - {song_name}.{ext}'
 OUTPUT_DEFAULT_ALBUM = '{artist}/{album}/{album_num} - {artist} - {song_name}.{ext}'
+
 
 class Config:
     Values = {}
@@ -148,7 +161,7 @@ class Config:
         return cls.get(SPLIT_ALBUM_DISCS)
 
     @classmethod
-    def get_chunk_size(cls) -> int():
+    def get_chunk_size(cls) -> int:
         return cls.get(CHUNK_SIZE)
 
     @classmethod
@@ -192,7 +205,15 @@ class Config:
         if cls.get(TEMP_DOWNLOAD_DIR) == '':
             return ''
         return os.path.join(cls.get_root_path(), cls.get(TEMP_DOWNLOAD_DIR))
+    
+    @classmethod
+    def get_all_genres(cls) -> bool:
+        return cls.get(MD_ALLGENRES)
 
+    @classmethod
+    def get_all_genres_delimiter(cls) -> bool:
+        return cls.get(MD_GENREDELIMITER)
+    
     @classmethod
     def get_output(cls, mode: str) -> str:
         v = cls.get(OUTPUT)
@@ -224,3 +245,7 @@ class Config:
                 return os.path.join(split[0], 'Disc {disc_number}', split[0])
             return OUTPUT_DEFAULT_ALBUM
         raise ValueError()
+
+    @classmethod
+    def get_retry_attempts(cls) -> int:
+        return cls.get(RETRY_ATTEMPTS)
